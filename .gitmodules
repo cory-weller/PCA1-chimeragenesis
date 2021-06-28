@@ -1,0 +1,3 @@
+[submodule "Xmera"]
+	path = Xmera
+	url = https://github.com/cory-weller/Xmera.git
