@@ -75,7 +75,7 @@ The script [`shuffle.R`](shuffle.R) generates five new `fasta` files with variou
 
  ## Remove homopolymers
 
-The [`homopolymers.py`](homopolymers.py) script removes homopolymers. See `class fasta` within the script for exact replacements.
+The [`homopolymers.py`](Xmera/bin/homopolymers.py) script removes homopolymers. See `class fasta` within the script for exact replacements.
 
 ```
 ( cd seqs/ && \
