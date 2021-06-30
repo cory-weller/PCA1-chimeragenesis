@@ -118,11 +118,16 @@ ATGCTGTGGCGATGCACAG
 ```
 
 ```bash
-python3 manuallyEditRepeats.py seqs/PW5_PCA1.min_homology.fasta > seqs/PW5_PCA1.gblocks.fasta
-python3 manuallyEditRepeats.py seqs/PW5_PCA1.low_homology.fasta >> seqs/PW5_PCA1.gblocks.fasta
-python3 manuallyEditRepeats.py seqs/PW5_PCA1.medium_homology.fasta >> seqs/PW5_PCA1.gblocks.fasta
-python3 manuallyEditRepeats.py seqs/PW5_PCA1.high_homology.fasta >> seqs/PW5_PCA1.gblocks.fasta
-python3 manuallyEditRepeats.py seqs/PW5_PCA1.max_homology.fasta >> seqs/PW5_PCA1.gblocks.fasta
+python3 manuallyEditRepeats.py seqs/PW5_PCA1.min_homology.fasta > seqs/PW5_PCA1.min.cds.fasta
+python3 manuallyEditRepeats.py seqs/PW5_PCA1.low_homology.fasta > seqs/PW5_PCA1.low.cds.fasta
+python3 manuallyEditRepeats.py seqs/PW5_PCA1.medium_homology.fasta > seqs/PW5_PCA1.medium.cds.fasta
+python3 manuallyEditRepeats.py seqs/PW5_PCA1.high_homology.fasta > seqs/PW5_PCA1.high.cds.fasta
+python3 manuallyEditRepeats.py seqs/PW5_PCA1.max_homology.fasta > seqs/PW5_PCA1.max.cds.fasta
+cat seqs/PW5_PCA1.min.cds.fasta \
+    seqs/PW5_PCA1.low.cds.fasta \
+    seqs/PW5_PCA1.medium.cds.fasta \
+    seqs/PW5_PCA1.high.cds.fasta \
+    seqs/PW5_PCA1.max.cds.fasta > seqs/PW5_PCA1.gblocks.fasta
 ```
 
 All these gblock sequences translate to the same protein sequence,
@@ -166,7 +171,7 @@ via gene synthesis.
 ## Preparing to generate repair templates
 Add nucleotide sequences upstream and downstream of the original genome location used for chimeragenesis.  i.e. when chimerizing BY and PW5 PCA1, it will be done around the original PCA1 site. This will require two files.
 
-I took the `Genomic DNA +/- 1kb` fasta from [SGD](https://www.yeastgenome.org/locus/S000000499#sequence), saved as `seqs/S288C_YBR295W_PCA1_flanking.fsa`
+I took the `Genomic DNA +/- 1kb` fasta from [SGD](https://www.yeastgenome.org/locus/S000000499#sequence), saved as [`S288C_YBR295W_PCA1_flanking.fsa`](seqs/S288C_YBR295W_PCA1_flanking.fsa)
 
 I separated it into two files. The first 1000 nucleotides made [`PCA1.upstream.fasta`](seqs/BY_PCA1.upstream.fasta) and last 1000 nucleotides made [`PCA1.downstream`](seqs/BY_PCA1.downstream.fasta):
 
@@ -178,8 +183,35 @@ echo ">BY_PCA1_downstream" > seqs/BY_PCA1.downstream.fasta
 tail -n +2 seqs/S288C_YBR295W_PCA1_flanking.fsa | tr -d "\n" | tail -c 1000 | fold >> seqs/BY_PCA1.downstream.fasta
 ```
 
+## Clean up unneeded files
+_Note: these files are still available in previous commits._
+```bash
+rm seqs/align.in.pep
+rm seqs/BY_PCA1.align.pep
+rm seqs/PW5_PCA1.align.pep
+rm seqs/PW5_PCA1.align.high.fasta
+rm seqs/PW5_PCA1.align.low.fasta
+rm seqs/PW5_PCA1.align.max.fasta
+rm seqs/PW5_PCA1.align.medium.fasta
+rm seqs/PW5_PCA1.align.min.fasta
+rm seqs/PW5_PCA1.min_homology.fasta
+rm seqs/PW5_PCA1.low_homology.fasta
+rm seqs/PW5_PCA1.medium_homology.fasta
+rm seqs/PW5_PCA1.high_homology.fasta
+rm seqs/PW5_PCA1.max_homology.fasta
+rm seqs/S288C_YBR295W_PCA1_flanking.fsa
+```
 
-
+fileOne="BY_PCA1.cds"
+fileTwo="PW5_PCA1.cds"
+flanking="BY_PCA1"
+mkdir tmp && cd tmp
+cp ../seqs/${fileOne}.fasta .
+cp ../seqs/${fileTwo}.fasta .
+cp ../seqs/${flanking}.upstream.fasta .
+cp ../seqs/${flanking}.downstream.fasta .
+python3 ../Xmera/bin/buildRTs.py ${fileOne} ${fileTwo} --flanking BY_PCA1 --repair-template-length 160 --unique protein > test_1.fasta
+python3 ../Xmera/bin/buildRTs.py ${fileTwo} ${fileOne} --flanking BY_PCA1 --repair-template-length 160 --unique protein > test_2.fasta
 
 
 ## Copy required files to this directory
@@ -191,10 +223,60 @@ cp ../codon_shuffle/CAD2.high.fasta ./CAD2.high.cds.fasta
 cp ../codon_shuffle/CAD2.cds.fasta .
 ```
 
+## Calculate expected number of RT for aligned transitions
+In `python`:
+```python
+BY = """MKPEKLFSGLGTSDGEYGVVNSENISIDAMQDNRGECHRRSIEMHANDNLGLVSQRDCTNRPKITPQECLSETEQICHHGENRTKAGLDV\
+----------------------------------------------------------------------------DDAETGGDHTNESRVDECCAEK\
+VND------------------------------------TETGLDVDSCCGDAQTGGDHTNESCVDGCCVRD--------------------------\
+---------SSVMVEEVTGSCEAVSSKEQLLTSFEVVPSKSEGLQSIHDIRETTRCNT-NSNQHTGKGRLCIESSDSTLKKRSCKVSRQKIEVSSKPE\
+CCNISCVERIASRSCEKRTFKGSTNVGISGSSSTDSLSEKFFSEQYSRMYNRYSSILKNLGCICNYLRTLGKESCCLPKVRFCSGEGASKKTKYSYRN\
+SSGCLTKKKTHGDKERLSNDNGHADFVCSKSCCTKMKDCAVTSTISGHSSSEISRIVSMEPIE--NHLNLEAGSTGTEHIVLSVSGMSCTGCESKLKK\
+SFGALKCVHGLKTSLILSQAEFNLDLAQGSVKDVIKHLSKTTEFKYEQISNHGSTIDVVVPYAAKDFINEEWPQGVTELKIVERNIIRIYFDPKVIGA\
+RDLVNEGWSVPVSIAPFSCHPTIEVGRKHLVRVGCTTALSIILTIPILVMAWAPQLREKISTISASMVLATIIQFVIAGPFYLNALKSLIFSRLIEMD\
+LLIVLSTSAAYIFSIVSFGYFVVGRPLSTEQFFETSSLLVTLIMVGRFVSELARHRAVKSISVRSLQASSAILVDKTGKETEINIRLLQYGDIFKVLP\
+DSRIPTDGTVISGSSEVDEALITGESMPVPKKCQSIVVAGSVNGTGTLFVKLSKLPGNNTISTIATMVDEAKLTKPKIQNIADKIASYFVPTIIGITV\
+VTFCVWIAVGIRVEKQSRSDAVIQAIIYAITVLIVSCPCVIGLAVPIVFVIASGVAAKRGVIFKSAESIEVAHNTSHVVFDKTGTLTEGKLTVVHETV\
+RGDRHNSQSLLLGLTEGIKHPVSMAIASYLKEKGVSAQNVSNTKAVTGKRVEGTSYSGLKLQGGNCRWLGHNNDPDVRKALEQGYSVFCFSVNGSVTA\
+VYALEDSLRADAVSTINLLRQRGISLHILSGDDDGAVRSMAARLGIESSNIRSHATPAEKSEYIKDIVEGRNCDSSSQSKRPVVVFCGDGTNDAIGLT\
+QATIGVHINEGSEVAKLAADVVMLKPKLNNILTMITVSQKAMFRVKLNFLWSFTYNLFAILLAAGAFVDFHIPPEYAGLGELVSILPVIFVAILLRYA\
+KI*"""
+
+PW5 = """MKPKKFDFSLGTSDNDRKAGNSENIPIDTMYGSN-----WPVEMHASDDQRLSS----------RKQKCLNKSEVMCNEGGNRNKAASD\
+SDSCCGDAQRGENYSDESCVDKCCAEKENETEAAFDSDSCCGDAQRGENYSDESCVNECCAKKENETEAASDSDSCCGDAQRGENYSDESCVDKCCAE\
+KENETEAAFDSDSCCGDAQRGENYSDESCVNECCAKKENETEAASDSDSCCGDAQRGENYSDESCVNECCAKKENETEAASGSDSCCGDAQKDSKFPE\
+KYADKCSIESSSVMIEEIADNYEAECCKGQLLPGVKVVSGECGGEQPTCGVREMPHCEPGSSNQQTGRGDFCFESRNSILKKRGFRVGRKNIEVSGKA\
+ECCNISCVERLASRH-EKKMFDANANVGVSSSCSSDDLSGKSFSEHYSETYNRYSSILKNLGCICTYLRSLGKKSCCLPKIRFCSGEDTSIKKKYSHR\
+NSSGRLTTKRAQRDGKKLSND--TADFACSKSCCRKIMNRAVSSAIYERSSNEIPRSVPIEPIREIDHLNLEAGSTGNEHVVLSVSGMTCTGCETKLK\
+RSFASLKYVHNLKTSLILSQAEFDLDLAQASVKDIIRHLSKTTEFKYEQILDHGSTIDVVVPYAAKDFINEEWPQGVTELKIIEKNIVRIYFDAKIIG\
+ARDLVNKGWNMPVKLAPPSAHPTVEVGRKHLVRVGCTTAISIMLTIPILVMAWAPHLREKVSTMSASMGLATIIQVLIAGPFYSNALKSLIFSRLIEM\
+DLLIVLSTSAAYIFSIVSFGYFVAGRPLSTEQFFETSSLLVTLIMVGRFVSELARHRAVKSISVRSLQASSAILVDETGNETEIDIRLLQYGDTFKVL\
+PDSRIPTDGTVISGSSEVDEALITGESMPVPKKCQSIVIAGSVNGTSTLFVKLIKLPGNNTISTIATMVDEAKLTKPKIQNIADKIASYFVPTIIGIT\
+VITFCVWIGVGISVKKQSRSDAVIQAIIYAITVLIVSCPCAIGLAVPMVFVIASGVAAKRGVIFKSAESIEVAHNTSHVVFDKTGTLTEGKLTVVHEI\
+IRDDRLNSRSLLLGLTEGVKHPVSIAIASYLKEQSVSAENVFNTKAVTGKGVEGTSQSGLKLQGGNCRWLSYSNDVDVRKALDQGYSVFCFSVNGSLT\
+AVYALEDSVRADAASTINLLRQRGISLHILSGDDDGAVRSLAVRLGIERSNVRSHATPAEKGEYIKDIVEGKNFDN-SQSKRPVVVFCGDGTNDAVAL\
+TQATIGVHINEGSEIAKLAADVVMLKPKLNNIITMITVSRKAMFRVKLNFIWSFTYNLFAILLAAGVFVDFHIPPEYAGLGELVSILPVIFVATLLRC\
+ASI*"""
+
+# begin with n = 2 for pure BY and pure PW5 alleles
+n = 2
+
+# iterate through aligned amino acids
+for position in zip(BY, PW5):
+    BY_aa = position[0]
+    PW5_aa = position[1]
+    # if not a gap and not identical:
+    if BY_aa not in ["-", PW5_aa] and PW5_aa not in ["-", BY_aa]:
+        n += 1
+
+print(str(n))
+# 261
+```
 
 
 
 
+## Pickup here
 
 ## Generate Repair Templates that show the method works
 Using longest repair templates (80 bp for each, or 160 bp total) and most diverged CAD2 sequence
