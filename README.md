@@ -31,7 +31,7 @@ PW5 PCA1 was confirmed by [Sanger sequencing](https://benchling.com/s/seq-0foOnE
 
 
 ## Generate aligned sequences
-```
+```bash
 echo ">PW5_PCA1_pep" > seqs/PW5_PCA1.pep
 python3 Xmera/bin/translate.py seqs/PW5_PCA1.cds.fasta >> seqs/PW5_PCA1.pep
 
@@ -62,7 +62,7 @@ echo ">BY_PCA1" > seqs/BY_PCA1.align.dna
 
 
 ## Generate shuffled sequences
-```
+```bash
 ( cd seqs/ && Rscript ../Xmera/bin/shuffle.R BY_PCA1.align.dna PW5_PCA1.align.dna )
 ```
 The script [`shuffle.R`](shuffle.R) generates five new `fasta` files with various % identity shared with `PCA1.cds.fasta`:
@@ -77,7 +77,7 @@ The script [`shuffle.R`](shuffle.R) generates five new `fasta` files with variou
 
 The [`homopolymers.py`](Xmera/bin/homopolymers.py) script removes homopolymers. See `class fasta` within the script for exact replacements.
 
-```
+```bash
 ( cd seqs/ && \
 python3 ../Xmera/bin/homopolymers.py PW5_PCA1.align.min.fasta BY_PCA1.align.dna > PW5_PCA1.min_homology.fasta
 python3 ../Xmera/bin/homopolymers.py PW5_PCA1.align.low.fasta BY_PCA1.align.dna > PW5_PCA1.low_homology.fasta
@@ -117,7 +117,7 @@ ATGAGTCATGCGTAAATGAGTGCTGCGCTAAGAAGGAAAACGAGACAGAAGCGGCTAGCGGTAGTGACTC
 ATGCTGTGGCGATGCACAG
 ```
 
-```
+```bash
 python3 manuallyEditRepeats.py seqs/PW5_PCA1.min_homology.fasta > seqs/PW5_PCA1.gblocks.fasta
 python3 manuallyEditRepeats.py seqs/PW5_PCA1.low_homology.fasta >> seqs/PW5_PCA1.gblocks.fasta
 python3 manuallyEditRepeats.py seqs/PW5_PCA1.medium_homology.fasta >> seqs/PW5_PCA1.gblocks.fasta
@@ -164,10 +164,19 @@ via gene synthesis.
 
 
 ## Preparing to generate repair templates
-Add nucleotide sequences upstream and downstream of the original genome location used for chimeragenesis.  i.e. when chimerizing PCA1 with CAD2 allele, it will be done around the original PCA1 site. This will require two files, `PCA1.upstream` and `PCA1.downstream`. 
+Add nucleotide sequences upstream and downstream of the original genome location used for chimeragenesis.  i.e. when chimerizing BY and PW5 PCA1, it will be done around the original PCA1 site. This will require two files.
 
-I took the `Genomic DNA +/- 1kb` fasta from [SGD](https://www.yeastgenome.org/locus/S000000499#sequence). The first 1000 nucleotides made `PCA1.upstream` and last 1000 nucleotides made `PCA1.downstream`.
+I took the `Genomic DNA +/- 1kb` fasta from [SGD](https://www.yeastgenome.org/locus/S000000499#sequence), saved as `seqs/S288C_YBR295W_PCA1_flanking.fsa`
 
+I separated it into two files. The first 1000 nucleotides made [`PCA1.upstream.fasta`](seqs/BY_PCA1.upstream.fasta) and last 1000 nucleotides made [`PCA1.downstream`](seqs/BY_PCA1.downstream.fasta):
+
+```bash
+echo ">BY_PCA1_upstream" > seqs/BY_PCA1.upstream.fasta
+tail -n +2 seqs/S288C_YBR295W_PCA1_flanking.fsa | tr -d "\n" | head -c 1000 | fold >> seqs/BY_PCA1.upstream.fasta
+
+echo ">BY_PCA1_downstream" > seqs/BY_PCA1.downstream.fasta
+tail -n +2 seqs/S288C_YBR295W_PCA1_flanking.fsa | tr -d "\n" | tail -c 1000 | fold >> seqs/BY_PCA1.downstream.fasta
+```
 
 
 
