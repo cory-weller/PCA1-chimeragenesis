@@ -276,17 +276,30 @@ print(str(n))
 
 
 
-## Pickup here
 
 ## Generate Repair Templates that show the method works
-Using longest repair templates (80 bp for each, or 160 bp total) and most diverged CAD2 sequence
+This experiment uses...
+* the longest repair template homology arms (80 bp for each arm, or 160 bp total)
+* the most diverged PW5 PCA1 allele (lowest homology to BY PCA1)
+* `--mode aligned` and `--unique all` to transition at all aligned codons
+
 ```
 mkdir -p 01_test_method
-python3 ./chimera.py BY_PCA1 PW5_PCA1.min --flanking BY_PCA1 --repair-template-length 160 --unique protein > 01_test_method/BY-PW5.min.RT-160.lax.fasta
-python3 ./chimera.py PW5_PCA1.min BY_PCA1 --flanking BY_PCA1 --repair-template-length 160 --unique protein > 01_test_method/PW5-BY.min.RT-160.lax.fasta
+python3 Xmera/bin/buildRTs.py \
+    seqs/BY_PCA1.cds \
+    seqs/PW5_PCA1.min.cds \
+    --flanking seqs/BY_PCA1 \
+    --repair-template-length 160 \
+    --mode aligned \
+    --unique protein > 01_test_method/BY-PW5.min.RT-160.fasta
 
-python3 ./chimera.py BY_PCA1 PW5_PCA1.min --strict --flanking BY_PCA1 --repair-template-length 160 --unique protein > 01_test_method/BY-PW5.min.RT-160.strict.fasta
-python3 ./chimera.py PW5_PCA1.min BY_PCA1 --strict --flanking BY_PCA1 --repair-template-length 160 --unique protein > 01_test_method/PW5-BY.min.RT-160.strict.fasta
+python3 Xmera/bin/buildRTs.py \
+    seqs/PW5_PCA1.min.cds \
+    seqs/BY_PCA1.cds \
+    --flanking seqs/BY_PCA1 \
+    --repair-template-length 160 \
+    --mode aligned \
+    --unique protein > 01_test_method/PW5.min-BY.RT-160.fasta
 # 262 rts each * 2 = 524
 ```
 
@@ -296,29 +309,21 @@ python3 ./chimera.py PW5_PCA1.min BY_PCA1 --strict --flanking BY_PCA1 --repair-t
 
 
 ## Look at variety of repair template lengths and sequence homology
-This will be a total of 10 transformations (PCA1-CAD2 and CAD2-PCA1 orientations, with 5 levels of sequence homology)
 ```
-mkdir -p 02_RT_length
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.min.RT-all.lax.fasta  ::: BY_PCA1 ::: PW5_PCA1.min :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.low.RT-all.lax.fasta  ::: BY_PCA1 ::: PW5_PCA1.low :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.medium.RT-all.lax.fasta  ::: BY_PCA1 ::: PW5_PCA1.medium :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.high.RT-all.lax.fasta  ::: BY_PCA1 ::: PW5_PCA1.high :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.orig.RT-all.lax.fasta ::: BY_PCA1 ::: PW5_PCA1.max ::: 40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.min_BY_PCA1.RT-all.lax.fasta  ::: PW5_PCA1.min ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.low_BY_PCA1.RT-all.lax.fasta  ::: PW5_PCA1.low ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.medium_BY_PCA1.RT-all.lax.fasta  ::: PW5_PCA1.medium ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.high_BY_PCA1.RT-all.lax.fasta  ::: PW5_PCA1.high ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
+mkdir -p 02_RT_length_homology
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode aligned --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/BY_PCA1_PW5_PCA1.min.RT-all.fasta  ::: seqs/BY_PCA1.cds ::: seqs/PW5_PCA1.min.cds ::: 40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/BY_PCA1_PW5_PCA1.low.RT-strict.fasta  ::: seqs/BY_PCA1.cds ::: seqs/PW5_PCA1.low.cds ::: 40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/BY_PCA1_PW5_PCA1.medium.RT-strict.fasta  ::: seqs/BY_PCA1.cds ::: seqs/PW5_PCA1.medium.cds ::: 40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/BY_PCA1_PW5_PCA1.high.RT-strict.fasta  ::: seqs/BY_PCA1.cds ::: seqs/PW5_PCA1.high.cds ::: 40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/BY_PCA1_PW5_PCA1.max.RT-strict.fasta  ::: seqs/BY_PCA1.cds ::: seqs/PW5_PCA1.max.cds ::: 40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/BY_PCA1_PW5_PCA1.wt.RT-strict.fasta  ::: seqs/BY_PCA1.cds ::: seqs/PW5_PCA1.cds ::: 40 50 60 70 80 90 100 120 140 160
 
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.min.RT-all.strict.fasta  ::: BY_PCA1 ::: PW5_PCA1.min :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.low.RT-all.strict.fasta  ::: BY_PCA1 ::: PW5_PCA1.low :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.medium.RT-all.strict.fasta  ::: BY_PCA1 ::: PW5_PCA1.medium :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.high.RT-all.strict.fasta  ::: BY_PCA1 ::: PW5_PCA1.high :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/BY_PCA1_PW5_PCA1.orig.RT-all.strict.fasta ::: BY_PCA1 ::: PW5_PCA1.max ::: 40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.min_BY_PCA1.RT-all.strict.fasta  ::: PW5_PCA1.min ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.low_BY_PCA1.RT-all.strict.fasta  ::: PW5_PCA1.low ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.medium_BY_PCA1.RT-all.strict.fasta  ::: PW5_PCA1.medium ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.high_BY_PCA1.RT-all.strict.fasta  ::: PW5_PCA1.high ::: BY_PCA1 :::  40 44 50 58 68 80 94 110 128 148 160
-parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-template-length {3} --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length/PW5_PCA1.orig_BY_PCA1.RT-all.strict.fasta ::: PW5_PCA1.max ::: BY_PCA1 ::: 40 44 50 58 68 80 94 110 128 148 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode aligned --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/PW5_PCA1.min_BY_PCA1.RT-all.fasta  ::: seqs/PW5_PCA1.min.cds ::: seqs/BY_PCA1.cds :::  40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/PW5_PCA1.low_BY_PCA1.RT-strict.fasta  ::: seqs/PW5_PCA1.low.cds ::: seqs/BY_PCA1.cds :::  40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/PW5_PCA1.medium_BY_PCA1.RT-strict.fasta  ::: seqs/PW5_PCA1.medium.cds ::: seqs/BY_PCA1.cds :::  40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/PW5_PCA1.high_BY_PCA1.RT-strict.fasta  ::: seqs/PW5_PCA1.high.cds ::: seqs/BY_PCA1.cds :::  40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/PW5_PCA1.max_BY_PCA1.RT-strict.fasta  ::: seqs/PW5_PCA1.max.cds ::: seqs/BY_PCA1.cds :::  40 50 60 70 80 90 100 120 140 160
+parallel -j 1 python3 Xmera/bin/buildRTs.py {1} {2} --flanking seqs/BY_PCA1 --repair-template-length {3} --mode strict --unique protein --primer-length 15 --oligo-length 190 --five-prime-padding gcgacaacggtttaggtgggtacgggtccccattccttatatagaaatggcatgttagatcggagcttccaaatcacgat --three-prime-padding accgttctttgttggaagaatagctaagcgcagggacttcccgaatctcggtattatcccggtaagtgtggactatattt  > 02_RT_length_homology/PW5_PCA1.wt_BY_PCA1.RT-strict.fasta  ::: seqs/PW5_PCA1.cds ::: seqs/BY_PCA1.cds :::  40 50 60 70 80 90 100 120 140 160
 
 ```
 
@@ -327,15 +332,24 @@ parallel -j 1 python3 ./chimera.py {1} {2} --strict --flanking BY_PCA1 --repair-
 
 
 
-## Look at the affects of chimerizing at synonymous sites
+## Look at the affects of chimerizing at all codons (including synonymous sites)
 ```
-mkdir -p 03_synonymous_RT
-python3 ./chimera.py  BY_PCA1 PW5_PCA1.min --flanking BY_PCA1 --repair-template-length 160 --unique dna --oligo-length 190 --repair-template-length 160 > 03_synonymous_RT/BY-PW5.min.RT-160-syn.lax.fasta
-python3 ./chimera.py  PW5_PCA1.min BY_PCA1 --flanking BY_PCA1 --repair-template-length 160 --unique dna --oligo-length 190 --repair-template-length 160 > 03_synonymous_RT/PW5-BY.min.RT-160-syn.lax.fasta
+mkdir -p 03_all_codons
+python3 Xmera/bin/buildRTs.py \
+    seqs/BY_PCA1.cds \
+    seqs/PW5_PCA1.min.cds \
+    --flanking seqs/BY_PCA1 \
+    --repair-template-length 160 \
+    --mode aligned \
+    --unique all > 03_all_codons/BY-PW5.min.RT-160.allCodons.fasta
 
-python3 ./chimera.py  BY_PCA1 PW5_PCA1.min --strict --flanking BY_PCA1 --repair-template-length 160 --unique dna --oligo-length 190 --repair-template-length 160 > 03_synonymous_RT/BY-PW5.min.RT-160-syn.strict.fasta
-python3 ./chimera.py  PW5_PCA1.min BY_PCA1 --strict --flanking BY_PCA1 --repair-template-length 160 --unique dna --oligo-length 190 --repair-template-length 160 > 03_synonymous_RT/PW5-BY.min.RT-160-syn.strict.fasta
-
+python3 Xmera/bin/buildRTs.py \
+    seqs/PW5_PCA1.min.cds \
+    seqs/BY_PCA1.cds \
+    --flanking seqs/BY_PCA1 \
+    --repair-template-length 160 \
+    --mode aligned \
+    --unique all > 03_all_codons/PW5.min-BY.RT-160.allCodons.fasta
 # 1198 RTs each * 2 = 2396
 ```
 
@@ -343,7 +357,7 @@ python3 ./chimera.py  PW5_PCA1.min BY_PCA1 --strict --flanking BY_PCA1 --repair-
 
 
 
-
+## Pick up here
 ## Generate chimeras between AcrIIa2 and AcrIIa2b (no codon shuffling needed)
 ```
 
