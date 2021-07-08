@@ -13,7 +13,7 @@ Yeast codon usage table retrieved from [kazusa.or.jp](https://www.kazusa.or.jp/c
 
 The contents of `codonTable.txt` was parsed and processed by [`formatCodons.py`](bin/formatCodons.py) into `seqs/codons.txt`:
 ```
-( if [ ! -f "codons.tab" ]; then python3 formatCodons.py > "codons.tab"; fi )
+( if [ ! -f "codons.txt" ]; then python3 ../Xmera/bin/formatCodons.py > "codons.txt"; fi )
 ```
 
 
