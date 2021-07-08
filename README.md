@@ -11,7 +11,7 @@ This repository includes the code and files used for PCA1 chimeragenesis, includ
 ## Initialize codon usage table
 Yeast codon usage table retrieved from [kazusa.or.jp](https://www.kazusa.or.jp/codon/cgi-bin/showcodon.cgi?species=4932&aa=1&style=N) and the body of the table was saved as  `codonTable.txt`. 
 
-The contents of `codonTable.txt` was parsed and processed by [`formatCodons.py`](bin/formatCodons.py) into `seqs/codons.txt`:
+The contents of `codonTable.txt` was parsed and processed by [`formatCodons.py`](https://github.com/cory-weller/Xmera/blob/b33db0d/bin/formatCodons.py) into `seqs/codons.txt`:
 ```
 ( if [ ! -f "codons.txt" ]; then python3 ../Xmera/bin/formatCodons.py > "codons.txt"; fi )
 ```
@@ -65,7 +65,7 @@ echo ">BY_PCA1" > seqs/BY_PCA1.align.dna
 ```bash
 ( cd seqs/ && Rscript ../Xmera/bin/shuffle.R BY_PCA1.align.dna PW5_PCA1.align.dna )
 ```
-The script [`shuffle.R`](shuffle.R) generates five new `fasta` files with various % identity shared with `PCA1.cds.fasta`:
+The script [`shuffle.R`](https://github.com/cory-weller/Xmera/blob/b33db0d/bin/shuffle.R) generates five new `fasta` files with various % identity shared with `PCA1.cds.fasta`:
 * seqs/PW5_PCA1.align.high.fasta
 * seqs/PW5_PCA1.align.low.fasta
 * seqs/PW5_PCA1.align.max.fasta
@@ -75,7 +75,7 @@ The script [`shuffle.R`](shuffle.R) generates five new `fasta` files with variou
 
  ## Remove homopolymers
 
-The [`homopolymers.py`](Xmera/bin/homopolymers.py) script removes homopolymers. See `class fasta` within the script for exact replacements.
+The [`homopolymers.py`](https://github.com/cory-weller/Xmera/blob/b33db0d/bin/homopolymers.py) script removes homopolymers. See `class fasta` within the script for exact replacements.
 
 ```bash
 ( cd seqs/ && \
