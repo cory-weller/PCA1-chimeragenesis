@@ -382,39 +382,31 @@ python3 chimera.py AcrIIa4 AcrIIa2b --all --unique dna --flanking acr --repair-t
 
 ## Add skpp15 primers
 
-Retrieved `skpp15` primers. PCR primer pairs (15-mers) obtained directly from Sri Kosuri (@skosuri). Modified from Elledge barcodes, https://elledge.hms.harvard.edu/?page_id=638
+Retrieved `skpp15` primers. PCR primer pairs (15-mers) obtained directly from Sri Kosuri (@skosuri). See https://github.com/KosuriLab/DropSynth
 
-```
-wget https://github.com/lasersonlab/pribar/raw/master/skpp15-forward.faa
-wget https://github.com/lasersonlab/pribar/raw/master/skpp15-reverse.faa
-```
+```bash
+Xmera/bin/addPrimers.py 01_test_method/BY-PW5.min.RT-160.fasta 101 > PCA1.RT.txt
+Xmera/bin/addPrimers.py 01_test_method/PW5.min-BY.RT-160.fasta 102 >> PCA1.RT.txt
 
-Built reverse complement of of the reverse primers at https://www.bioinformatics.org/sms2/rev_comp.html and removed blank lines with `sed -i '/^$/d' skpp15-reverse-complemented.faa` 
+Xmera/bin/addPrimers.py 02_RT_length_homology/PW5_PCA1.max_BY_PCA1.RT-strict.fasta 103 >> PCA1.RT.txt
+Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.max.RT-strict.fasta 104 >> PCA1.RT.txt
 
-Convert FASTA format to single-line csv
 
-```
-for file in $(ls 01_test_method/*.fasta 02_RT_length/*.fasta 03_synonymous_RT/*.fasta); do
-    cat ${file} | tr "\n" "@" | sed 's/@>/\n/g' | sed 's/each@/each,/g' | tr -d "@" > ${file%.fasta}.csv
-done
-```
+Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.low.RT-strict.fasta 105 >> PCA1.RT.txt
+Xmera/bin/addPrimers.py 02_RT_length_homology/PW5_PCA1.low_BY_PCA1.RT-strict.fasta 106 >> PCA1.RT.txt
 
-Concatenate skpp15 primers to RT sequences
+Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.medium.RT-strict.fasta 107 >> PCA1.RT.txt
+Xmera/bin/addPrimers.py 02_RT_length_homology/PW5_PCA1.medium_BY_PCA1.RT-strict.fasta 108 >> PCA1.RT.txt
 
-```
-N=100
-for file in $(ls 01_test_method/*.csv 02_RT_length/*.csv 03_synonymous_RT/*.csv); do
-    let N=N+1
-    let lineNo=N*2
-    forward=$(sed -n ${lineNo}p skpp15-forward.faa)
-    reverse=$(sed -n ${lineNo}p skpp15-reverse-complemented.faa)
-    awk -F "," -v f=${forward} -v r=${reverse} '{print $1,f$2r}' ${file} > ${file%.csv}.skpp${N}.RT.csv
-done
-```
+Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.min.RT-all.fasta 109 >> PCA1.RT.txt
+Xmera/bin/addPrimers.py 02_RT_length_homology/PW5_PCA1.min_BY_PCA1.RT-all.fasta 110 >> PCA1.RT.txt
 
-Zip skpp15 RT oligos
+Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.high.RT-strict.fasta 111 >> PCA1.RT.txt
+Xmera/bin/addPrimers.py 02_RT_length_homology/PW5_PCA1.high_BY_PCA1.RT-strict.fasta 112 >> PCA1.RT.txt
 
-```
-find . | grep skpp | grep csv | zip skpp15.RTs.zip -@
+Xmera/bin/addPrimers.py 02_RT_length_homology/PW5_PCA1.wt_BY_PCA1.RT-strict.fasta 113 >> PCA1.RT.txt
+Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.wt.RT-strict.fasta 114 >> PCA1.RT.txt
 
+Xmera/bin/addPrimers.py 03_all_codons/BY-PW5.min.RT-160.allCodons.fasta 115 >> PCA1.RT.txt
+Xmera/bin/addPrimers.py 03_all_codons/PW5.min-BY.RT-160.allCodons.fasta 116 >> PCA1.RT.txt
 ```
