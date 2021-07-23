@@ -410,3 +410,11 @@ Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.wt.RT-strict.fast
 Xmera/bin/addPrimers.py 03_all_codons/BY-PW5.min.RT-160.allCodons.fasta 115 >> PCA1.RT.txt
 Xmera/bin/addPrimers.py 03_all_codons/PW5.min-BY.RT-160.allCodons.fasta 116 >> PCA1.RT.txt
 ```
+
+## Add control oligos
+
+```bash
+Xmera/bin/printControlOligos.py chimeragenesis 160 100 > negControl.RT.tmp.txt
+Xmera/bin/addPrimers.py negControl.RT.tmp.txt 117 > negControl.RT.txt && \
+rm negControl.RT.tmp.txt
+```
