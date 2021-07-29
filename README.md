@@ -273,8 +273,11 @@ print(str(n))
 # 261
 ```
 
+## Test various deletion lengths
 
-
+```bash
+python3 delLengthRTs.py > 00_deletion_length/deletion_lengths.fasta
+```
 
 
 ## Generate Repair Templates that show the method works
@@ -409,6 +412,8 @@ Xmera/bin/addPrimers.py 02_RT_length_homology/BY_PCA1_PW5_PCA1.wt.RT-strict.fast
 
 Xmera/bin/addPrimers.py 03_all_codons/BY-PW5.min.RT-160.allCodons.fasta 115 >> PCA1.RT.txt
 Xmera/bin/addPrimers.py 03_all_codons/PW5.min-BY.RT-160.allCodons.fasta 116 >> PCA1.RT.txt
+
+Xmera/bin/addPrimers.py 00_deletion_length/deletion_lengths.fasta 118 >> PCA1.RT.txt
 ```
 
 ## Add control oligos
